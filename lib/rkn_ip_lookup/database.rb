@@ -47,7 +47,7 @@ module RknIpLookup
     end
 
     def ips
-      @ips ||= Set.new(entries.select { |x| x =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/ })
+      @ips ||= Set.new(entries.select { |x| x.match?(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/) })
     end
 
     def cidrs

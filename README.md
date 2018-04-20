@@ -1,8 +1,8 @@
-# RknIpLookup
+# Rkn IP/Hostname Lookup
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/rkn_ip_lookup`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Check IP or hostname presence in RKN blocked resources list.
+Currently only antizapret.info supported (https://api.antizapret.info/group.php?data=ip).
+Feel free to contribute
 
 ## Installation
 
@@ -22,7 +22,16 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    RknIpLookup::Checker.check('127.0.0.1') #=> false
+    RknIpLookup::Checker.check('google.com') #=> false
+    RknIpLookup::Checker.check('yandex.ru') #=> false
+    RknIpLookup::Checker.check('s3.eu-central-1.amazonaws.com') #=> #<IPAddr: IPv4:52.192.0.0/255.224.0.0>. This means IP was blocked by CIDR `52.192.0.0/11`
+
+### Database
+
+I use singleton `RknIpLookup::Database` to store fetched IPs. It caches by default with ruby marshal. To reset cache do
+
+    RknIpLookup::Database.reload
 
 ## Development
 
@@ -32,7 +41,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/rkn_ip_lookup.
+Bug reports and pull requests are welcome on GitHub at https://github.com/kressh/rkn_ip_lookup .
 
 ## License
 
