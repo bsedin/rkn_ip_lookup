@@ -3,32 +3,44 @@ require_relative 'types/cidrs'
 module RknIpLookup
   class Database
     attr_accessor :data
+    attr_accessor :updated_at
 
     class << self
-      def load
-        @db ||= new.tap(&:load)
+      def load(skip_cache: false)
+        return @db if @db && !skip_cache
+
+        @db = !skip_cache && RknIpLookup.config.database.cache && load_from_file || new.load
+        @db
       end
 
       def method_missing(meth, *args)
         load.public_send(meth)
       end
+
+      def reload
+        load(skip_cache: true)
+      end
+
+      def load_from_file(filename = nil)
+        filename ||= RknIpLookup.config.database.cache_file_path
+        return unless File.exist? filename
+        @db = Marshal.load(File.read(filename))
+      end
     end
 
     def load
-      self.data = RknIpLookup.config.database.cache && load_from_file || RknIpLookup::Provider::Antizapret.fetch.data
-      dump_to_file if RknIpLookup.config.database.cache
-    end
+      provider_data = RknIpLookup::Provider::Antizapret.fetch
+      self.data = provider_data.data
+      self.updated_at = Time.now
 
-    def load_from_file(filename = nil)
-      filename ||= RknIpLookup.config.database.cache_file_path
-      return unless File.exist? filename
-      Marshal.load(File.read(filename))
+      dump_to_file if RknIpLookup.config.database.cache
+      self
     end
 
     def dump_to_file(filename = nil)
       filename ||= RknIpLookup.config.database.cache_file_path
       File.open(filename, 'w') do |f|
-        f.write Marshal.dump(data)
+        f.write Marshal.dump(self)
         f.close
       end
       data

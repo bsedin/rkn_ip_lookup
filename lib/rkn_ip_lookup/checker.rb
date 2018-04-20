@@ -9,7 +9,7 @@ module RknIpLookup
       private
 
       def db
-        @db ||= Database.load
+        Database.load
       end
     end
   end
